@@ -7,18 +7,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class SherlockValidString {
 	
 	public static void main(String[] args) {
-		System.out.println(isValid("abcdefghhgfedecba"));
+		System.out.println(isValid("xxxaabbccrry"));
 	}
 	
 	static String isValid(String s) {
 		
 		Map<Character, Integer> charCountMap = new HashMap<Character, Integer>();
 		
-		Map<Integer, Integer> numCountMap = new TreeMap<Integer, Integer>();
+		Map<Integer, TreeSet<Character>> numCountMap = new HashMap<Integer, TreeSet<Character>>();
 		
 		char[] chars = s.toCharArray();
 		
@@ -31,54 +32,59 @@ public class SherlockValidString {
 		}
 		
 		
-		for(Integer n: charCountMap.values()) {
+		for(Entry<Character, Integer> n: charCountMap.entrySet()) {
 			
-			if (numCountMap.containsKey(n)) {
-				numCountMap.put(n, numCountMap.get(n) + 1);
+			if (numCountMap.size() > 2) {
+				return "NO";
+				
+			}
+			
+			if (numCountMap.containsKey(n.getValue())) {
+				TreeSet<Character> set = numCountMap.get(n.getValue());
+				set.add(n.getKey());
+				numCountMap.put(n.getValue(), set);
 			} else {
-				numCountMap.put(n, 1);
+				TreeSet<Character> set = new TreeSet<Character>();
+				set.add(n.getKey());
+				numCountMap.put(n.getValue(), set);
 			}
 					
 		}
 		
-		if (numCountMap.size() == 1) {
+		if(numCountMap.size() == 1) {
 			return "YES";
 		}
 		
-		if (numCountMap.size() > 2) {
-			return "NO";
-		} else {
-			
-			Iterator<Entry<Integer, Integer>> numItr = numCountMap.entrySet().iterator();
-			
-			Entry<Integer, Integer> lowCountEntry = numItr.next();
-			Entry<Integer, Integer> highCountEntry = numItr.next();
-			Integer lowCount = lowCountEntry.getKey();
-			Integer lowCountValue = lowCountEntry.getValue();
-			Integer highCount = highCountEntry.getKey();
-			Integer highCountValue =highCountEntry.getValue();
-			
-			if (lowCountValue >= 2) {
+		int diff = 0;
+		
+		
+		Iterator<Entry<Integer, TreeSet<Character>>> iterator = numCountMap.entrySet().iterator();
+		
+		Entry<Integer, TreeSet<Character>> firstSet = iterator.next();
+		Entry<Integer, TreeSet<Character>> secondSet = iterator.next();
+		
+		int firstSetSize =  firstSet.getValue().size();
+		int secondSetSize =  secondSet.getValue().size();
+		
+		diff =  firstSet.getKey() - secondSet.getKey();
+		
+		if (diff == 0) {
+			if ((firstSetSize == 1 && firstSet.getKey() > 1) || (secondSetSize == 1 && secondSet.getKey() > 1)) {
 				return "NO";
-			}
-			
-			
-			
-			if (highCount - 1 == lowCount) {
+			} else {
 				return "YES";
 			}
-			
-			if (lowCountValue - 1 == 0) {
-				return "YES";
+		
+		} else {
+			if ((diff == 1 || diff == -1) ) {
+				if (firstSetSize >= 2 && secondSetSize >= 2 ) {
+					return "NO";
+				} else {
+					return "YES";
+				}
 			} else {
 				return "NO";
 			}
-			
-			
-			/*
-			 * if ( highCount - lowCount == 1) { return "YES"; } else { return "NO"; }
-			 */
-			
 		}
 		
 
